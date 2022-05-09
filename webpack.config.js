@@ -4,48 +4,47 @@ const { CleanPlugin } = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  context: path.resolve(__dirname, './src'),
-  mode: 'development',
-  entry: './src/index.js',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: './bundle.js',
-  },
+   context: path.resolve(__dirname, './src'),
+   mode: 'development',
+   entry: './index.js',
+   output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: './bundle.js',
+   },
+   devServer: {
+      hot:false,
+      liveReload: true
+   },
 
-  devServer: {
-    hot:false,
-    liveReload: true
-  },
-
-  plugins: [
-    new HtmlWebpackPlugin({
+   plugins: [
+      new HtmlWebpackPlugin({
       template: './index.html',
-    }),
-    new CleanPlugin(),
-    new CopyPlugin({
-      patterns: [
-      {
-        from: path.resolve(__dirname, './src/favicon.ico'),
-        to: path.resolve(__dirname, './dist'),
-      }
-      ]
-    }),
-  ],
+      }),
+      new CleanPlugin(),
+   //  new CopyPlugin({
+   //    patterns: [
+   //    {
+   //      from: path.resolve(__dirname, './src/favicon.ico'),
+   //      to: path.resolve(__dirname, './dist'),
+   //    }
+   //    ]
+   //  }),
+   ],
 
-  module: {
-    rules: [ 
-    {
+   module: {
+      rules: [ 
+      {
       test: /\.s[ac]ss$/i,
       use: ['style-loader', 'css-loader', 'sass-loader']
-    },
-    {
+      },
+      {
       test: /\.(ttf|woff|woff2)$/,
       type: 'asset/resource',
-    },
-    {
+      },
+      {
       test: /\.(png|jpg|svg|gif)$/,
       type: 'asset/resource',
-    },
-    ]
-  }
+      },
+      ]
+   }
 };
