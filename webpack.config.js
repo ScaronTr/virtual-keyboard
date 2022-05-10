@@ -13,7 +13,7 @@ module.exports = {
    },
    devServer: {
       hot:false,
-      liveReload: true
+      liveReload: true,
    },
 
    plugins: [
@@ -21,14 +21,14 @@ module.exports = {
       template: './index.html',
       }),
       new CleanPlugin(),
-   //  new CopyPlugin({
-   //    patterns: [
-   //    {
-   //      from: path.resolve(__dirname, './src/favicon.ico'),
-   //      to: path.resolve(__dirname, './dist'),
-   //    }
-   //    ]
-   //  }),
+    new CopyPlugin({
+      patterns: [
+      {
+        from: path.resolve(__dirname, './src/assets/icons/favicon.ico'),
+        to: path.resolve(__dirname, './dist'),
+      }
+      ]
+    }),
    ],
 
    module: {
