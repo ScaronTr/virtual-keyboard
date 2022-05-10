@@ -1,7 +1,24 @@
 import keys from './keys.js'
 
 function createBody() {
-   alert(`Добрый день. Я не успел доделать задание и поэтому у меня есть просьба к Вам - проверить мою работу 11.05 после обеда. Большое спасибо за понимание!`);
+   const body = document.body;
+   const container = createElement('div', 'container', body);
+   const title = createElement('h1', 'title', container, 'Virtual keyboard');
+   const textArea = createElement('textarea', 'textarea', container);
+   const keyboard = createElement('div', 'keyboard', container);
+   const keyboardRows = [];
+   const description = createElement('span', 'description', container, `
+   Keyboard created in Windows OS. Press left Ctrl + left Alt for translate language.
+   `);
+
+   let capsIndicator;
+   
+   let lang = 'en';
+   const mainKeysObj = {};
+   const serviceKeysObj = {};
+      
+   body.classList.add('body');
+
    window.addEventListener('load', () => {
       if (localStorage.length == 0) {
          lang = 'en';
@@ -15,27 +32,10 @@ function createBody() {
          lang = 'ru';
          createKeyboard(keys.keysOrder.ru);
       }
-      elementArr.forEach((item, index) => {
-         map.set(keys.keysOrder.enDefault[index], item);
-      })
    })
 
-   const body = document.body;
-   body.classList.add('body');
-
-   const container = createElement('div', 'container', body);
-   const title = createElement('h1', 'title', container, 'virtual keyboard');
-   const textArea = createElement('textarea', 'textarea', container);
-   const keyboard = createElement('div', 'keyboard', container);
-   const keyboardMainPart = createElement('div', 'keyboard__main-part', keyboard);
-   const keyboardMainPartRows = [];
-  
-   let lang;
-   let elementArr = [];
-   const obj = {};
-   let map = new Map();
-
    addFunctionalForKeyboard();
+
 
    window.addEventListener('beforeunload', () => {
       localStorage.setItem('lang', lang);
@@ -43,119 +43,196 @@ function createBody() {
 
    function addFunctionalForKeyboard() {
       let key;
+      let mouseKey;
       let code;
       let currentElement;
       let capsLockOn = false;
       let shiftOn = false;
 
+      const enDefault = keys.keysOrder.enDefault.split('');
+      const enCaps = keys.keysOrder.enCaps.split('');
+      const enShift = keys.keysOrder.enShift.split('');
+      const enShiftCaps = keys.keysOrder.enShiftCaps.split('');
+
+      const ruDefault = keys.keysOrder.ruDefault.split('');
+      const ruCaps = keys.keysOrder.ruCaps.split('');
+      const ruShift = keys.keysOrder.ruShift.split('');
+      const ruShiftCaps = keys.keysOrder.ruShiftCaps.split('');
+
+      keyboard.addEventListener('click', event => {
+         mouseKey = event.target.textContent;
+         if (Object.values(mainKeysObj).includes(event.target)) {
+            textArea.value += mouseKey;
+         } else if (Object.values(serviceKeysObj).includes(event.target)) {
+            
+            if (mouseKey == 'Tab') {
+               textArea.value = textArea.value + '\t';
+            }
+
+            if (mouseKey == 'BackSpace') textArea.value = textArea.value.slice(0, textArea.value.length - 1);
+            if (mouseKey == 'Enter') textArea.value += '\n';
+            if (mouseKey == 'Space') textArea.value += ' ';
+
+            if (mouseKey == 'CapsLock' && !capsLockOn) {
+               capsIndicator.classList.add('caps-indicator_active');
+               capsLockOn = true;
+            } else if (mouseKey == 'CapsLock' && capsLockOn) {
+               capsIndicator.classList.remove('caps-indicator_active');
+               capsLockOn = false;
+            } else if (mouseKey == 'Shift' && !shiftOn) {
+               event.target.classList.add('keyboard__key_active');
+               shiftOn = true;
+            } else if (mouseKey == 'Shift' && shiftOn) {
+               event.target.classList.remove('keyboard__key_active');
+               shiftOn = false;
+            }
+
+            if (!capsLockOn && !shiftOn) { 
+               if (lang == 'en') updateKeys(enDefault)
+               else if (lang == 'ru') updateKeys(ruDefault);
+            } else if (capsLockOn && !shiftOn) {
+               if (lang == 'en') updateKeys(enCaps)
+               else if (lang == 'ru') updateKeys(ruCaps);
+            } else if (!capsLockOn && shiftOn) {
+               if (lang == 'en') updateKeys(enShift)
+               else if (lang == 'ru') updateKeys(ruShift);
+            } else if (capsLockOn && shiftOn) {
+               if (lang == 'en') updateKeys(enShiftCaps)
+               else if (lang == 'ru') updateKeys(ruShiftCaps);
+            }
+         }
+
+      })
+
       body.addEventListener('keydown', event => {
          key = event.key;
          code = event.code;
+         if (mainKeysObj[code] || serviceKeysObj[code]) {  
 
-         if (elementArr.find(item => (key == item.textContent || key == item.textContent.toUpperCase()) ? item : false) || map.get(key) || map.get(key.toLowerCase()) || obj[code] || keys.keysOrder.ruShift.includes(key)) {
-            if (lang == 'ru') {
-               currentElement = map.get(key) || map.get(key.toLowerCase()) || obj[code];
-            } else currentElement = elementArr.find(item => (key == item.textContent || key == item.textContent.toUpperCase()) ? item : false) || obj[code]; 
-            if (key == 'CapsLock' && !capsLockOn) {
+            currentElement = mainKeysObj[code] || serviceKeysObj[code];
+
+            if (key == 'CapsLock' && !capsLockOn && !event.repeat) {
                currentElement.classList.add('keyboard__key_active');
+               capsIndicator.classList.add('caps-indicator_active');
                capsLockOn = true;
             } else if (key == 'CapsLock' && capsLockOn && !event.repeat) {
-               currentElement.classList.remove('keyboard__key_active');
+               currentElement.classList.add('keyboard__key_active');
+               capsIndicator.classList.remove('caps-indicator_active');
                capsLockOn = false;
-            } else if (key == 'Shift') {
+            } else if (key == 'Shift' && !shiftOn) {
                currentElement.classList.add('keyboard__key_active');
                shiftOn = true;
-            } else currentElement.classList.add('keyboard__key_active');
-                     
-            if (obj['AltLeft'].classList.contains('keyboard__key_active') && obj['ControlLeft'].classList.contains('keyboard__key_active')) {
+            } else if (key == 'Shift' && shiftOn && !event.repeat) {
+               currentElement.classList.remove('keyboard__key_active');
+               shiftOn = false;
+            } else if (currentElement) {
+               currentElement.classList.add('keyboard__key_active');
+            }
+
+            if (serviceKeysObj['AltLeft'].classList.contains('keyboard__key_active') && serviceKeysObj['ControlLeft'].classList.contains('keyboard__key_active')) {
                if (lang == 'en') lang = 'ru';
                else lang = 'en';
             }
 
             if (!capsLockOn && !shiftOn) { 
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enDefault[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruDefault[index]);
+               if (lang == 'en') updateKeys(enDefault)
+               else if (lang == 'ru') updateKeys(ruDefault);
             } else if (capsLockOn && !shiftOn) {
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enCaps[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruCaps[index]);
+               if (lang == 'en') updateKeys(enCaps)
+               else if (lang == 'ru') updateKeys(ruCaps);
             } else if (!capsLockOn && shiftOn) {
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enShift[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruShift[index]);
+               if (lang == 'en') updateKeys(enShift)
+               else if (lang == 'ru') updateKeys(ruShift);
             } else if (capsLockOn && shiftOn) {
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enShiftCaps[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruShiftCaps[index]);
+               if (lang == 'en') updateKeys(enShiftCaps)
+               else if (lang == 'ru') updateKeys(ruShiftCaps);
             }
-
-            if (!obj[code]) textArea.value += currentElement.textContent;
+            
+            if (mainKeysObj[code]) {
+               textArea.value += mainKeysObj[code].textContent;
+            }
          }
       }) 
 
       body.addEventListener('keyup', event => {
          key = event.key;
          code = event.code;
-         if (elementArr.find(item => (key == item.textContent || key == item.textContent.toUpperCase()) ? item : false) || map.get(key) || map.get(key.toLowerCase()) || obj[code]) {
-            if (lang == 'ru') {
-               currentElement = map.get(key) || map.get(key.toLowerCase()) || obj[code];
-            } else currentElement = elementArr.find(item => (key == item.textContent || key == item.textContent.toUpperCase()) ? item : false) || obj[code];
-            if (key != 'CapsLock') currentElement.classList.remove('keyboard__key_active');
+         if (mainKeysObj[code] || serviceKeysObj[code]) {
+            currentElement = mainKeysObj[code] || serviceKeysObj[code];
+            if (key != 'CapsLock') currentElement.classList.remove('keyboard__key_active')
+            else if (key == 'CapsLock') {
+               setTimeout(() => {
+                  currentElement.classList.remove('keyboard__key_active');
+               }, 50)
+            }
             if (key == 'Shift') {
                shiftOn = false;
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enDefault[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruDefault[index]);
+               if (lang == 'en') updateKeys(enDefault)
+               else if (lang == 'ru') updateKeys(ruDefault);
             }
-   
+            
             if (!capsLockOn && !shiftOn) { 
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enDefault[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruDefault[index]);
+               if (lang == 'en') updateKeys(enDefault)
+               else if (lang == 'ru') updateKeys(ruDefault);
             } else if (capsLockOn && !shiftOn) {
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enCaps[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruCaps[index]);
+               if (lang == 'en') updateKeys(enCaps)
+               else if (lang == 'ru') updateKeys(ruCaps);
             } else if (!capsLockOn && shiftOn) {
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enShift[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruShift[index]);
+               if (lang == 'en') updateKeys(enShift)
+               else if (lang == 'ru') updateKeys(ruShift);
             } else if (capsLockOn && shiftOn) {
-               if (lang == 'en') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.enShiftCaps[index])
-               else if (lang == 'ru') elementArr.forEach((item, index) => item.textContent = keys.keysOrder.ruShiftCaps[index]);
+               if (lang == 'en') updateKeys(enShiftCaps)
+               else if (lang == 'ru') updateKeys(ruShiftCaps);
             }
-
          }
       })
 
       document.onkeydown = (event) => {
-         if (event.ctrlKey || event.altKey || event.keyCode >= 112 && event.keyCode <= 122) {
-            return false;
-         }
-
          if (event.key == 'Tab') {
             textArea.value = textArea.value + '\t';
-            return false         
          }
+
+         if (code == 'Backspace') textArea.value = textArea.value.slice(0, textArea.value.length - 1);
+         if (code == 'Enter') textArea.value += '\n';
+         if (code == 'Space') textArea.value += ' ';
+         
+         if (code != 'F5' && code != 'F12') {
+            return false;
+         }
+         
       }
    }
 
    function createKeyboard(origin) {
       for (let i = 0; i < origin.length; i++) {
-         keyboardMainPartRows.push(createElement('div', 'keyboard__main-part-row', keyboardMainPart));
+         keyboardRows.push(createElement('div', 'keyboard__row', keyboard));
          for (let value of origin[i]) {
-            if (!Array.isArray(value)) {
-               if (value.length > 1 && value[0] == 'F') obj[value] = (createElement('button', 'keyboard__key', keyboardMainPartRows[i], value))
-               else {
-                  elementArr.push(createElement('button', 'keyboard__key', keyboardMainPartRows[i], value));
-               }
-            } else {
-               obj[value[1]] = (createElement('button', 'keyboard__key', keyboardMainPartRows[i], value[0]));
-            }
+            if (keys.keysOrder.serviceKeys.includes(value[1])) {
+               serviceKeysObj[value[1]] = (createElement('button', 'keyboard__key', keyboardRows[i], value[0]));
+               serviceKeysObj[value[1]].classList.add('keyboard__service-key');
+               if (value[1] == 'CapsLock') capsIndicator = createElement('div', 'caps-indicator', serviceKeysObj[value[1]]);
+            } else mainKeysObj[value[1]] = (createElement('button', 'keyboard__key', keyboardRows[i], value[0]));
          }
       }
    }
-}
 
-const createElement = (tag, cssClass, parent, text) => {
-   const element = document.createElement(tag);
-   element.classList.add(cssClass);
-   if (text) element.textContent = text;
-   parent.append(element);
-   return element;
-}
+   function updateKeys(lang) {
+      let i = 0;
+      for (let key in mainKeysObj) {
+         while (i < lang.length) {
+            mainKeysObj[key].textContent = lang[i];
+            ++i;
+            break;
+         }
+      }
+   }
 
+   function createElement(tag, cssClass, parent, text = false) {
+      const element = document.createElement(tag);
+      element.classList.add(cssClass);
+      if (text) element.textContent = text;
+      parent.append(element);
+      return element;
+   }
+}
 export {createBody}
