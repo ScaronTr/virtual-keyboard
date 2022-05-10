@@ -1,22 +1,56 @@
+@import './../declaration/variables';
+
+* {   
+   scroll-behavior: smooth;
+   box-sizing: border-box;
+}
+
 .body {
    display: flex;
    flex-direction: column;
    align-items: center;
+
+   height: 100vh;
+   background: linear-gradient(to bottom, #44A08D 0%, #093637 100%);
 
    .container {
       display: flex;
       flex-direction: column;
       align-items: center;
       
-      gap: 80px;
-
-      .textarea {
-         width: 400px;
-         height: 100px;
+      gap: 60px;
+      padding-top: 50px;
+      
+      .title {
+         font-family: $font;
+         font-size: 32px;
+         color: white;
+         letter-spacing: 0.1em;
       }
 
-      .keyboard {
+      .textarea {
+         width: 690px;
+         height: 200px;
+         padding: 2px 8px;
+         border: solid 2px rgba(0, 0, 0, 0.65);
+         border-radius: 20px;
+         
+         font-size: 18px;
+         letter-spacing: 0.1em;
+         transition: .3s;
+         box-shadow: 0px 6px 10px 4px rgba(0, 0, 0, 0.5);
 
+         &:focus {
+            outline: none;
+            box-shadow: 0px 0px 12px 4px white;
+         }
+      }
+
+      .description {
+         font-family: $font;
+         font-size: 20px;
+         letter-spacing: 0.08em;
+         color: white;
       }
    }
 }
