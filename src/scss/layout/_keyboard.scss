@@ -1,0 +1,131 @@
+@import './../declaration/variables';
+
+.keyboard {
+   display: flex;
+   flex-direction: column;
+
+   width: 1280px;
+   padding: 20px;
+   gap: 16px;
+   border-radius: 16px;
+
+   box-shadow: 0 8px 0px #AAAAAA,
+   0px 10px 10px 10px rgba(0, 0, 0, 0.5);
+   background: linear-gradient(to bottom, #FFFFFF 0%, #F1F1F1 100%);
+
+   .keyboard__row {
+      display: flex;
+      gap: 14px;
+
+      .keyboard__key {
+         width: 56px;
+         height: 56px;
+         border: solid 1px white;
+         border-radius: 6px;
+
+         font-size: 20px;
+
+         background: linear-gradient(to bottom, #FCFCFC 0%, rgba(138, 138, 138, 0.2) 100%);
+         box-shadow: 0 5px #AAAAAA,
+         0px 8px 8px rgba(138, 138, 138, 0.7),
+         3px 8px 8px rgba(138, 138, 138, 0.3),
+         -3px 8px 8px rgba(138, 138, 138, 0.3),
+         0px -2px 8px rgba(138, 138, 138, 0.3);
+         
+         transition: .3s;
+
+         &:hover {
+            background-color: #58d2cb;
+         }
+      
+         &:active {
+            transform: translateY(5px);
+            background-color: #58d2cb;
+            box-shadow: 0 0px #AAAAAA,
+            0px 2px 3px rgba(138, 138, 138, 0.1),
+            3px 2px 3px rgba(138, 138, 138, 0.3),
+            -3px 2px 3px rgba(138, 138, 138, 0.3);
+         }
+      }
+      
+      .keyboard__key_active {
+         transform: translateY(5px);
+
+         background-color: #58d2cb;
+         box-shadow: 0 0px #AAAAAA,
+         0px 2px 3px rgba(138, 138, 138, 0.1),
+         3px 2px 3px rgba(138, 138, 138, 0.3),
+         -3px 2px 3px rgba(138, 138, 138, 0.3);
+         // background-color: hsl(22, 88%, 50%);
+      }
+
+      .keyboard__service-key {
+         font-size: 18px;
+      }
+
+      .caps-indicator {
+         position: absolute;
+         right: 3px;
+         top: 3px;
+
+         width: 8px;
+         height: 8px;
+         border-radius: 50%;
+         border: solid 1px rgba(0, 0, 0, 0.5);
+
+         background-color: #606060;
+      }
+
+      .caps-indicator_active {
+         background-color: #58d2cb
+      }
+
+      &:nth-child(1) {
+         .keyboard__service-key {
+            width: 120px;
+         }
+      }
+      
+      &:nth-child(2) {
+         .keyboard__key:last-child {
+            width: 86px;
+         }
+         .keyboard__service-key {
+            width: 90px;
+         }
+      }
+
+      &:nth-child(3) {
+         .keyboard__key:last-child {
+            width: 136px;
+         }
+         .keyboard__service-key {
+            position: relative;
+            width: 110px;
+         }
+      }
+
+      &:nth-child(4) {
+         .keyboard__key:nth-child(12) {
+            width: 182px;
+         }
+         .keyboard__key:last-child {
+            margin-left: 70px;
+         }
+
+         .keyboard__service-key {
+            width: 134px;
+         }
+      }
+
+      &:nth-child(5) {
+         .keyboard__service-key {
+            width: 70px;
+         }
+         .keyboard__service-key:nth-child(4) {
+            width: 442px;
+         }
+      }
+   }
+}
+
